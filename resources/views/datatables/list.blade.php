@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -22,6 +23,24 @@
 
     <div class="container">
         <h2 class="text-center">Laravel DataTable</h2>
+        {{-- Filtro do período por data --}}
+        <div class="row">
+            <div class="col-md-3">
+                <label for="">From Date</label>
+                <input type="date" id="from_date" value="" />
+            </div>
+
+            <div class="col-md-3">
+                <label for="">To Date</label>
+                <input type="date" id="to_date" value="" />
+            </div>
+
+            <div class="col-md-3">
+                <button type="button" onclick="reload_table()" class="btn btn-info">Filter</button>
+            </div>
+        </div>
+        {{-- Fim filtro período por data --}}
+
         <div class="table-responsive">
             <table id="posts-table" class="table table-bordered">
                 <thead></thead>
@@ -31,46 +50,76 @@
     </div>
 
     <script>
-        $( function() {
+        $(function() {
             $('#posts-table').DataTable({
-                "oLanguage" : {
-                    "sProcessing" : "<span>Please wait...</span>"
+                "oLanguage": {
+                    "sProcessing": "<span>Please wait...</span>"
                 },
-                "pagingType" : "simple_numbers",
-                "paging" : true,
-                "lengthMenu" : [
-                    [ 10, 25, 50 ],
-                    [ 10, 25, 50 ]
+                "pagingType": "simple_numbers",
+                "paging": true,
+                "lengthMenu": [
+                    [10, 25, 50],
+                    [10, 25, 50]
                 ],
-                "processing" : true,
-                "serverSide" : true,
-                "ordering" : false,
-                "ajax" : {
-                    "type" : "GET",
-                    "url" : "{{ url('datatables/posts') }}",
-                    "data" : function(d){
-
+                "processing": true,
+                "serverSide": true,
+                "ordering": false,
+                "ajax": {
+                    "type": "GET",
+                    "url": "{{ url('datatables/posts') }}",
+                    "data": function(d) {
+                        // Filtro por data
+                        d.from_date = document.getElementById('from_date').value;
+                        d.to_date = document.getElementById('to_date').value;
                     },
-                    "dataFilter" : function( data ){
-                        var json = jQuery.parseJSON( data );
-                        json.draw =  json.draw;
+                    "dataFilter": function(data) {
+                        var json = jQuery.parseJSON(data);
+                        json.draw = json.draw;
                         json.recordsFiltered = json.total;
                         json.recordsTotal = json.total;
                         json.data = json.data;
 
-                        return JSON.stringify( json );
+                        return JSON.stringify(json);
                     }
                 },
                 /* Colunas do datatable */
-                "columns" : [
+                "columns": [
                     /* Header -      DB data -         Visible config */
-                    { "title" : "#", "data" : "sl_no", "name" : "sl_no", "visible" : true, "searchable" : true },
-                    { "title" : "Title", "data" : "title", "name" : "title", "visible" : true, "searchable" : true },
-                    { "title" : "Slug", "data" : "slug", "name" : "slug", "visible" : true, "searchable" : true },
-                    { "title" : "Description", "data" : "description", "name" : "description", "visible" : true, "searchable" : true },
+                    {
+                        "title": "ID",
+                        "data": "id",
+                        "name": "id",
+                        "visible": true,
+                        "searchable": true
+                    },
+                    {
+                        "title": "Title",
+                        "data": "name",
+                        "name": "name",
+                        "visible": true,
+                        "searchable": true
+                    },
+                    {
+                        "title": "Slug",
+                        "data": "slug",
+                        "name": "slug",
+                        "visible": true,
+                        "searchable": true
+                    },
+                    {
+                        "title": "Description",
+                        "data": "description",
+                        "name": "description",
+                        "visible": true,
+                        "searchable": true
+                    },
                 ]
             });
         });
+        // Função do filtro por data
+        function reload_table(){
+            $('#posts-table').DataTable().ajax.reload();
+        }
     </script>
 
 </body>
